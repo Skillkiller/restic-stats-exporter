@@ -13,17 +13,6 @@ import (
 func main() {
 	log.Println("Starting restic statistics exporter...")
 	checkEnv("RESTIC_REPOSITORY")
-}
-
-func checkEnv(name string) {
-	val, ok := os.LookupEnv(name)
-	if !ok {
-		log.Fatalf("%s environment variable is not set", name)
-	}
-
-	if val == "" {
-		log.Fatalf("%s environment variable is empty", name)
-	}
 
 	prometheus.MustRegister(&snapshot.Collector{})
 
@@ -34,5 +23,16 @@ func checkEnv(name string) {
 
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatalf("HTTP server failed: %v", err)
+	}
+}
+
+func checkEnv(name string) {
+	val, ok := os.LookupEnv(name)
+	if !ok {
+		log.Fatalf("%s environment variable is not set", name)
+	}
+
+	if val == "" {
+		log.Fatalf("%s environment variable is empty", name)
 	}
 }
