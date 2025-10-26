@@ -186,3 +186,100 @@ restic_snapshot_exit_code 1684
 		})
 	}
 }
+
+func TestCollector_Collect_ExecutablePath(t *testing.T) {
+	type fields struct {
+		resticExecutablePath string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+	}{
+		{
+			name: "restic",
+			fields: fields{
+				resticExecutablePath: "restic",
+			},
+		},
+		{
+			name: "/usr/bin/restic",
+			fields: fields{
+				resticExecutablePath: "/usr/bin/restic",
+			},
+		},
+		{
+			name: "./resticv123",
+			fields: fields{
+				resticExecutablePath: "./resticv123",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// fakeExec check if the executable path is as expected and return empty JSON array output
+			fakeExec := func(exe string, args ...string) ([]byte, error, int) {
+				if exe != tt.fields.resticExecutablePath {
+					t.Fatalf("unexpected executable: %s", exe)
+				}
+				return []byte(`[]`), nil, 0
+			}
+
+			c := &Collector{
+				resticExecutablePath: tt.fields.resticExecutablePath,
+				commandExecutor:      fakeExec,
+			}
+
+			reg := prometheus.NewRegistry()
+			if err := reg.Register(c); err != nil {
+				t.Fatalf("failed to register collector: %v", err)
+			}
+
+			expected := `
+# HELP restic_snapshot_exit_code Exit code of the list snapshots command. See restic exit codes, except 1684 for json output parsing errors: https://restic.readthedocs.io/en/stable/075_scripting.html#exit-codes
+# TYPE restic_snapshot_exit_code gauge
+restic_snapshot_exit_code 0
+# HELP restic_snapshot_count_total Total number of snapshots in the repository
+# TYPE restic_snapshot_count_total gauge
+restic_snapshot_count_total 0
+`
+
+			err := testutil.CollectAndCompare(reg, strings.NewReader(expected))
+			if err != nil {
+				t.Fatalf("unexpected metrics output: %v", err)
+			}
+
+		})
+	}
+}
+
+func TestCollector_Collect_No_Snapshot(t *testing.T) {
+	// fakeExec returns the specified JSON output with zero snapshots
+	fakeExec := func(exe string, args ...string) ([]byte, error, int) {
+		return []byte(`[]`), nil, 0
+	}
+
+	c := &Collector{
+		resticExecutablePath: "restic",
+		commandExecutor:      fakeExec,
+	}
+
+	reg := prometheus.NewRegistry()
+	if err := reg.Register(c); err != nil {
+		t.Fatalf("failed to register collector: %v", err)
+	}
+
+	expected := `
+# HELP restic_snapshot_exit_code Exit code of the list snapshots command. See restic exit codes, except 1684 for json output parsing errors: https://restic.readthedocs.io/en/stable/075_scripting.html#exit-codes
+# TYPE restic_snapshot_exit_code gauge
+restic_snapshot_exit_code 0
+# HELP restic_snapshot_count_total Total number of snapshots in the repository
+# TYPE restic_snapshot_count_total gauge
+restic_snapshot_count_total 0
+`
+
+	err := testutil.CollectAndCompare(reg, strings.NewReader(expected))
+	if err != nil {
+		t.Fatalf("unexpected metrics output: %v", err)
+	}
+}
