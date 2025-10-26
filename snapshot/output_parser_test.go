@@ -247,3 +247,68 @@ func Test_getTotalSnapshotCount(t *testing.T) {
 		})
 	}
 }
+
+func Test_getSnapshotCountByGroup(t *testing.T) {
+	type args struct {
+		group GroupData
+	}
+	tests := []struct {
+		name  string
+		args  args
+		want  GroupKey
+		want1 int
+	}{
+		{
+			name: "empty data",
+			args: args{
+				group: GroupData{},
+			},
+			want:  GroupKey{},
+			want1: 0,
+		},
+		{
+			name: "zero snapshots",
+			args: args{
+				group: GroupData{
+					GroupKey:  GroupKey{Hostname: "SK12", Tags: []string{"full-server"}},
+					Snapshots: []Snapshot{},
+				},
+			},
+			want:  GroupKey{Hostname: "SK12", Tags: []string{"full-server"}},
+			want1: 0,
+		},
+		{
+			name: "two snapshots",
+			args: args{
+				group: GroupData{
+					GroupKey: GroupKey{Hostname: "SK12", Tags: []string{"kuma"}},
+					Snapshots: []Snapshot{
+						{
+							Time:     mustParse(t, "2025-10-08T05:23:10.031203027+02:00"),
+							Hostname: "SK12",
+							Tags:     []string{"kuma"},
+						},
+						{
+							Time:     mustParse(t, "2025-10-12T05:23:09.346002024+02:00"),
+							Hostname: "SK12",
+							Tags:     []string{"kuma"},
+						},
+					},
+				},
+			},
+			want:  GroupKey{Hostname: "SK12", Tags: []string{"kuma"}},
+			want1: 2,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1 := getSnapshotCountByGroup(tt.args.group)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getSnapshotCountByGroup() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("getSnapshotCountByGroup() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}

@@ -57,3 +57,7 @@ func getTotalSnapshotCount(data []GroupData) int {
 
 	return sum
 }
+
+func getSnapshotCountByGroup(group GroupData) (GroupKey, int) {
+	return group.GroupKey, len(group.Snapshots)
+}
