@@ -411,3 +411,124 @@ func Test_getLastSnapshotByGroup(t *testing.T) {
 		})
 	}
 }
+
+func Test_getSnapshotMetricsByGroup(t *testing.T) {
+	type args struct {
+		group GroupData
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    GroupKey
+		want1   SnapshotMetrics
+		wantErr bool
+	}{
+		{
+			name: "empty data",
+			args: args{
+				group: GroupData{},
+			},
+			want:    GroupKey{},
+			want1:   SnapshotMetrics{},
+			wantErr: true,
+		},
+		{
+			name: "zero snapshots",
+			args: args{
+				group: GroupData{
+					GroupKey:  GroupKey{Hostname: "SK12", Tags: []string{"full-server"}},
+					Snapshots: []Snapshot{},
+				},
+			},
+			want:    GroupKey{},
+			want1:   SnapshotMetrics{},
+			wantErr: true,
+		},
+		{
+			name: "two snapshots",
+			args: args{
+				group: GroupData{
+					GroupKey: GroupKey{Hostname: "SK12", Tags: []string{"kuma"}},
+					Snapshots: []Snapshot{
+						{
+							Time:     mustParse(t, "2025-10-08T05:23:10.031203027+02:00"),
+							Hostname: "SK12",
+							Tags:     []string{"kuma"},
+							Summary: Summary{
+								BackupStart:         mustParse(t, "2025-10-07T17:56:01.685056163+02:00"),
+								BackupEnd:           mustParse(t, "2025-10-07T18:02:13.257197421+02:00"),
+								FilesNew:            72799,
+								FilesChanged:        0,
+								FilesUnmodified:     0,
+								DirsNew:             10352,
+								DirsChanged:         0,
+								DirsUnmodified:      0,
+								DataBlobs:           10352,
+								TreeBlobs:           9919,
+								DataAdded:           3155414417,
+								DataAddedPacked:     1241206301,
+								TotalFilesProcessed: 72799,
+								TotalBytesProcessed: 3771315033,
+							},
+						},
+						{
+							Time:     mustParse(t, "2025-10-12T05:23:09.346002024+02:00"),
+							Hostname: "SK12",
+							Tags:     []string{"kuma"},
+							Summary: Summary{
+								BackupStart:         mustParse(t, "2025-10-12T00:35:01.347812525+02:00"),
+								BackupEnd:           mustParse(t, "2025-10-12T00:36:10.861283523+02:00"),
+								FilesNew:            1,
+								FilesChanged:        69,
+								FilesUnmodified:     73040,
+								DirsNew:             0,
+								DirsChanged:         80,
+								DirsUnmodified:      10419,
+								DataBlobs:           230,
+								TreeBlobs:           73,
+								DataAdded:           138116104,
+								DataAddedPacked:     44128842,
+								TotalFilesProcessed: 73110,
+								TotalBytesProcessed: 3927390997,
+							},
+						},
+					},
+				},
+			},
+			want: GroupKey{Hostname: "SK12", Tags: []string{"kuma"}},
+			want1: SnapshotMetrics{
+				Time:                mustParse(t, "2025-10-12T05:23:09.346002024+02:00"),
+				BackupStart:         mustParse(t, "2025-10-12T00:35:01.347812525+02:00"),
+				BackupEnd:           mustParse(t, "2025-10-12T00:36:10.861283523+02:00"),
+				FilesNew:            1,
+				FilesChanged:        69,
+				FilesUnmodified:     73040,
+				DirsNew:             0,
+				DirsChanged:         80,
+				DirsUnmodified:      10419,
+				DataBlobs:           230,
+				TreeBlobs:           73,
+				DataAdded:           138116104,
+				DataAddedPacked:     44128842,
+				TotalFilesProcessed: 73110,
+				TotalBytesProcessed: 3927390997,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1, err := getSnapshotMetricsByGroup(tt.args.group)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getSnapshotMetricsByGroup() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getSnapshotMetricsByGroup() got = %v, want %v", got, tt.want)
+			}
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("getSnapshotMetricsByGroup() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}

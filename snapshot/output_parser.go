@@ -40,6 +40,24 @@ type Summary struct {
 	TotalBytesProcessed int       `json:"total_bytes_processed"`
 }
 
+type SnapshotMetrics struct {
+	Time                time.Time
+	BackupStart         time.Time
+	BackupEnd           time.Time
+	FilesNew            int
+	FilesChanged        int
+	FilesUnmodified     int
+	DirsNew             int
+	DirsChanged         int
+	DirsUnmodified      int
+	DataBlobs           int
+	TreeBlobs           int
+	DataAdded           int
+	DataAddedPacked     int
+	TotalFilesProcessed int
+	TotalBytesProcessed int
+}
+
 func readJson(data []byte) ([]GroupData, error) {
 	var o []GroupData
 	err := json.Unmarshal(data, &o)
@@ -77,4 +95,29 @@ func getLastSnapshotByGroup(group GroupData) (GroupKey, Snapshot, error) {
 	}
 
 	return group.GroupKey, lastSnapshot, nil
+}
+
+func getSnapshotMetricsByGroup(group GroupData) (GroupKey, SnapshotMetrics, error) {
+	_, snapshot, err := getLastSnapshotByGroup(group)
+	if err != nil {
+		return GroupKey{}, SnapshotMetrics{}, err
+	}
+
+	return group.GroupKey, SnapshotMetrics{
+		Time:                snapshot.Time,
+		BackupStart:         snapshot.Summary.BackupStart,
+		BackupEnd:           snapshot.Summary.BackupEnd,
+		FilesNew:            snapshot.Summary.FilesNew,
+		FilesChanged:        snapshot.Summary.FilesChanged,
+		FilesUnmodified:     snapshot.Summary.FilesUnmodified,
+		DirsNew:             snapshot.Summary.DirsNew,
+		DirsChanged:         snapshot.Summary.DirsChanged,
+		DirsUnmodified:      snapshot.Summary.DirsUnmodified,
+		DataBlobs:           snapshot.Summary.DataBlobs,
+		TreeBlobs:           snapshot.Summary.TreeBlobs,
+		DataAdded:           snapshot.Summary.DataAdded,
+		DataAddedPacked:     snapshot.Summary.DataAddedPacked,
+		TotalFilesProcessed: snapshot.Summary.TotalFilesProcessed,
+		TotalBytesProcessed: snapshot.Summary.TotalBytesProcessed,
+	}, nil
 }
