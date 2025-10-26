@@ -165,3 +165,85 @@ func mustParse(t testing.TB, s string) time.Time {
 	}
 	return tt
 }
+
+func Test_getTotalSnapshotCount(t *testing.T) {
+	type args struct {
+		data []GroupData
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "valid array",
+			args: args{
+				data: []GroupData{
+					{
+						GroupKey: GroupKey{Hostname: "SK12", Tags: []string{"full-server"}},
+						Snapshots: []Snapshot{
+							{
+								Time:     mustParse(t, "2025-10-07T17:56:01.685056163+02:00"),
+								Hostname: "SK12",
+								Tags:     []string{"full-server"},
+							},
+						},
+					},
+				},
+			},
+			want: 1,
+		},
+		{
+			name: "empty array",
+			args: args{
+				data: []GroupData{},
+			},
+			want: 0,
+		},
+		{
+			name: "multiple group keys array",
+			args: args{
+				data: []GroupData{
+					{
+						GroupKey: GroupKey{Hostname: "SK12", Tags: []string{"full-server"}},
+						Snapshots: []Snapshot{
+							{
+								Time:     mustParse(t, "2025-10-07T17:56:01.685056163+02:00"),
+								Hostname: "SK12",
+								Tags:     []string{"full-server"},
+							},
+							{
+								Time:     mustParse(t, "2025-10-12T00:35:01.347812525+02:00"),
+								Hostname: "SK12",
+								Tags:     []string{"full-server"},
+							},
+						},
+					},
+					{
+						GroupKey: GroupKey{Hostname: "SK12", Tags: []string{"kuma"}},
+						Snapshots: []Snapshot{
+							{
+								Time:     mustParse(t, "2025-10-08T05:23:10.031203027+02:00"),
+								Hostname: "SK12",
+								Tags:     []string{"kuma"},
+							},
+							{
+								Time:     mustParse(t, "2025-10-12T05:23:09.346002024+02:00"),
+								Hostname: "SK12",
+								Tags:     []string{"kuma"},
+							},
+						},
+					},
+				},
+			},
+			want: 4,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getTotalSnapshotCount(tt.args.data); got != tt.want {
+				t.Errorf("getTotalSnapshotCount() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

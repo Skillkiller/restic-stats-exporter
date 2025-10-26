@@ -47,3 +47,13 @@ func readJson(data []byte) ([]GroupData, error) {
 	}
 	return o, nil
 }
+
+func getTotalSnapshotCount(data []GroupData) int {
+	sum := 0
+
+	for _, group := range data {
+		sum += len(group.Snapshots)
+	}
+
+	return sum
+}
