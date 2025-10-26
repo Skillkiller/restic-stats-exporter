@@ -9,23 +9,23 @@ import (
 type Collector struct{}
 
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- snapshotCountTotal
-	ch <- snapshotCount
-	ch <- lastSnapshotTime
-	ch <- lastSnapshotBackupStart
-	ch <- lastSnapshotBackupEnd
-	ch <- lastSnapshotFilesNew
-	ch <- lastSnapshotFilesChanged
-	ch <- lastSnapshotFilesUnmodified
-	ch <- lastSnapshotDirsNew
-	ch <- lastSnapshotDirsChanged
-	ch <- lastSnapshotDirsUnmodified
-	ch <- lastSnapshotDataBlobs
-	ch <- lastSnapshotTreeBlobs
-	ch <- lastSnapshotDataAdded
-	ch <- lastSnapshotDataAddedPacked
-	ch <- lastSnapshotTotalFilesProcessed
-	ch <- lastSnapshotTotalBytesProcessed
+	ch <- snapshotCountTotalDesc
+	ch <- snapshotCountDesc
+	ch <- lastSnapshotTimeDesc
+	ch <- lastSnapshotBackupStartDesc
+	ch <- lastSnapshotBackupEndDesc
+	ch <- lastSnapshotFilesNewDesc
+	ch <- lastSnapshotFilesChangedDesc
+	ch <- lastSnapshotFilesUnmodifiedDesc
+	ch <- lastSnapshotDirsNewDesc
+	ch <- lastSnapshotDirsChangedDesc
+	ch <- lastSnapshotDirsUnmodifiedDesc
+	ch <- lastSnapshotDataBlobsDesc
+	ch <- lastSnapshotTreeBlobsDesc
+	ch <- lastSnapshotDataAddedDesc
+	ch <- lastSnapshotDataAddedPackedDesc
+	ch <- lastSnapshotTotalFilesProcessedDesc
+	ch <- lastSnapshotTotalBytesProcessedDesc
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
@@ -42,5 +42,5 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	totalSnapshotCount := getTotalSnapshotCount(groupData)
-	ch <- prometheus.MustNewConstMetric(snapshotCountTotal, prometheus.GaugeValue, float64(totalSnapshotCount))
+	ch <- prometheus.MustNewConstMetric(snapshotCountTotalDesc, prometheus.GaugeValue, float64(totalSnapshotCount))
 }
