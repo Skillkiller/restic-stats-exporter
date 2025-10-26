@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"restic-stats-exporter/snapshot"
@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	log.Println("Starting restic statistics exporter...")
+	slog.Info("Starting restic statistics exporter...")
 	checkEnv("RESTIC_REPOSITORY")
 
 	resticExecutablePath := getEnvWithDefault("RSE_RESTIC_EXECUTABLE_PATH", "restic")
@@ -19,23 +19,26 @@ func main() {
 	prometheus.MustRegister(snapshot.NewSnapshotCollector(resticExecutablePath))
 
 	addr := ":2112"
-	log.Printf("Starting metrics HTTP server on %s ...", addr)
+	slog.Info("Starting metrics HTTP server", "addr", addr)
 
 	http.Handle("/metrics", promhttp.Handler())
 
 	if err := http.ListenAndServe(addr, nil); err != nil {
-		log.Fatalf("HTTP server failed: %v", err)
+		slog.Error("HTTP server failed", "error", err)
+		os.Exit(1)
 	}
 }
 
 func checkEnv(name string) {
 	val, ok := os.LookupEnv(name)
 	if !ok {
-		log.Fatalf("%s environment variable is not set", name)
+		slog.Error("Environment variable is not set", "name", name)
+		os.Exit(1)
 	}
 
 	if val == "" {
-		log.Fatalf("%s environment variable is empty", name)
+		slog.Error("Environment variable is empty", "name", name)
+		os.Exit(1)
 	}
 }
 
