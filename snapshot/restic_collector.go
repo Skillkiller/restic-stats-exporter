@@ -9,11 +9,16 @@ import (
 
 type Collector struct {
 	resticExecutablePath string
+	commandExecutor      CommandExecutor
 }
+
+// CommandExecutor is a function that executes a command and returns the output, error and exit code.
+type CommandExecutor func(name string, arg ...string) ([]byte, error, int)
 
 func NewSnapshotCollector(resticExecutablePath string) *Collector {
 	return &Collector{
 		resticExecutablePath: resticExecutablePath,
+		commandExecutor:      execCommandExecutor,
 	}
 }
 
@@ -38,11 +43,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
-	c.collectWithExecutor(ch, execCommandExecutor)
-}
-
-func (c *Collector) collectWithExecutor(ch chan<- prometheus.Metric, commandExecutor CommandExecutor) {
-	out, err, exitCode := commandExecutor(c.resticExecutablePath, "snapshots", "--json", "--no-lock", "--group-by", "host,tags")
+	out, err, exitCode := c.commandExecutor(c.resticExecutablePath, "snapshots", "--json", "--no-lock", "--group-by", "host,tags")
 
 	ch <- prometheus.MustNewConstMetric(snapshotExitCode, prometheus.GaugeValue, float64(exitCode))
 	if err != nil {
@@ -93,9 +94,6 @@ func (c *Collector) collectWithExecutor(ch chan<- prometheus.Metric, commandExec
 		}
 	}
 }
-
-// CommandExecutor is a function that executes a command and returns the output, error and exit code.
-type CommandExecutor func(name string, arg ...string) ([]byte, error, int)
 
 // execCommandExecutor executes a command with exec.Command and returns the output, error and exit code.
 var execCommandExecutor CommandExecutor = func(name string, arg ...string) ([]byte, error, int) {
