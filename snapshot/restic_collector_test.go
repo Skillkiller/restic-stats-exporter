@@ -3,6 +3,7 @@ package snapshot
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -276,6 +277,106 @@ restic_snapshot_exit_code 0
 # HELP restic_snapshot_count_total Total number of snapshots in the repository
 # TYPE restic_snapshot_count_total gauge
 restic_snapshot_count_total 0
+`
+
+	err := testutil.CollectAndCompare(reg, strings.NewReader(expected))
+	if err != nil {
+		t.Fatalf("unexpected metrics output: %v", err)
+	}
+}
+
+func TestCollector_Collect_Multiple_Groups(t *testing.T) {
+	// fakeExec returns the specified JSON output
+	fakeExec := func(exe string, args ...string) ([]byte, error, int) {
+		data, err := os.ReadFile("testdata/multiple_groups.json")
+		if err != nil {
+			t.Fatalf("readJson test file: %v", err)
+		}
+
+		return data, nil, 0
+	}
+
+	c := &Collector{
+		resticExecutablePath: "restic",
+		commandExecutor:      fakeExec,
+	}
+
+	reg := prometheus.NewRegistry()
+	if err := reg.Register(c); err != nil {
+		t.Fatalf("failed to register collector: %v", err)
+	}
+
+	expected := `
+# HELP restic_last_snapshot_backup_end_seconds Unix timestamp: end time of the last backup
+# TYPE restic_last_snapshot_backup_end_seconds gauge
+restic_last_snapshot_backup_end_seconds{restic_hostname="DPC1",restic_tags="minebase"} 1.761495631e+09
+restic_last_snapshot_backup_end_seconds{restic_hostname="DPC1",restic_tags="papermc"} 1.761506824e+09
+# HELP restic_last_snapshot_backup_start_seconds Unix timestamp: start time of the last backup
+# TYPE restic_last_snapshot_backup_start_seconds gauge
+restic_last_snapshot_backup_start_seconds{restic_hostname="DPC1",restic_tags="minebase"} 1.761495627e+09
+restic_last_snapshot_backup_start_seconds{restic_hostname="DPC1",restic_tags="papermc"} 1.76150682e+09
+# HELP restic_last_snapshot_data_added_bytes Number of bytes added in the last snapshot (unpacked)
+# TYPE restic_last_snapshot_data_added_bytes gauge
+restic_last_snapshot_data_added_bytes{restic_hostname="DPC1",restic_tags="minebase"} 276436
+restic_last_snapshot_data_added_bytes{restic_hostname="DPC1",restic_tags="papermc"} 0
+# HELP restic_last_snapshot_data_added_packed_bytes Number of bytes added in the last snapshot (packed)
+# TYPE restic_last_snapshot_data_added_packed_bytes gauge
+restic_last_snapshot_data_added_packed_bytes{restic_hostname="DPC1",restic_tags="minebase"} 157995
+restic_last_snapshot_data_added_packed_bytes{restic_hostname="DPC1",restic_tags="papermc"} 0
+# HELP restic_last_snapshot_data_blobs Number of data blobs in the last snapshot
+# TYPE restic_last_snapshot_data_blobs gauge
+restic_last_snapshot_data_blobs{restic_hostname="DPC1",restic_tags="minebase"} 126
+restic_last_snapshot_data_blobs{restic_hostname="DPC1",restic_tags="papermc"} 0
+# HELP restic_last_snapshot_dirs_changed Number of changed directories in the last snapshot
+# TYPE restic_last_snapshot_dirs_changed gauge
+restic_last_snapshot_dirs_changed{restic_hostname="DPC1",restic_tags="minebase"} 0
+restic_last_snapshot_dirs_changed{restic_hostname="DPC1",restic_tags="papermc"} 0
+# HELP restic_last_snapshot_dirs_new Number of newly added directories in the last snapshot
+# TYPE restic_last_snapshot_dirs_new gauge
+restic_last_snapshot_dirs_new{restic_hostname="DPC1",restic_tags="minebase"} 92
+restic_last_snapshot_dirs_new{restic_hostname="DPC1",restic_tags="papermc"} 0
+# HELP restic_last_snapshot_dirs_unmodified Number of unmodified directories in the last snapshot
+# TYPE restic_last_snapshot_dirs_unmodified gauge
+restic_last_snapshot_dirs_unmodified{restic_hostname="DPC1",restic_tags="minebase"} 0
+restic_last_snapshot_dirs_unmodified{restic_hostname="DPC1",restic_tags="papermc"} 391
+# HELP restic_last_snapshot_files_changed Number of changed files in the last snapshot
+# TYPE restic_last_snapshot_files_changed gauge
+restic_last_snapshot_files_changed{restic_hostname="DPC1",restic_tags="minebase"} 0
+restic_last_snapshot_files_changed{restic_hostname="DPC1",restic_tags="papermc"} 0
+# HELP restic_last_snapshot_files_new Number of newly added files in the last snapshot
+# TYPE restic_last_snapshot_files_new gauge
+restic_last_snapshot_files_new{restic_hostname="DPC1",restic_tags="minebase"} 129
+restic_last_snapshot_files_new{restic_hostname="DPC1",restic_tags="papermc"} 0
+# HELP restic_last_snapshot_files_unmodified Number of unmodified files in the last snapshot
+# TYPE restic_last_snapshot_files_unmodified gauge
+restic_last_snapshot_files_unmodified{restic_hostname="DPC1",restic_tags="minebase"} 0
+restic_last_snapshot_files_unmodified{restic_hostname="DPC1",restic_tags="papermc"} 288
+# HELP restic_last_snapshot_time_seconds Unix timestamp of the last snapshot
+# TYPE restic_last_snapshot_time_seconds gauge
+restic_last_snapshot_time_seconds{restic_hostname="DPC1",restic_tags="minebase"} 1.761495627e+09
+restic_last_snapshot_time_seconds{restic_hostname="DPC1",restic_tags="papermc"} 1.76150682e+09
+# HELP restic_last_snapshot_total_bytes_processed Total number of bytes processed in the last snapshot
+# TYPE restic_last_snapshot_total_bytes_processed gauge
+restic_last_snapshot_total_bytes_processed{restic_hostname="DPC1",restic_tags="minebase"} 126189
+restic_last_snapshot_total_bytes_processed{restic_hostname="DPC1",restic_tags="papermc"} 2.02676503e+08
+# HELP restic_last_snapshot_total_files_processed Total number of files processed in the last snapshot
+# TYPE restic_last_snapshot_total_files_processed gauge
+restic_last_snapshot_total_files_processed{restic_hostname="DPC1",restic_tags="minebase"} 129
+restic_last_snapshot_total_files_processed{restic_hostname="DPC1",restic_tags="papermc"} 288
+# HELP restic_last_snapshot_tree_blobs Number of tree blobs in the last snapshot
+# TYPE restic_last_snapshot_tree_blobs gauge
+restic_last_snapshot_tree_blobs{restic_hostname="DPC1",restic_tags="minebase"} 92
+restic_last_snapshot_tree_blobs{restic_hostname="DPC1",restic_tags="papermc"} 0
+# HELP restic_snapshot_count Number of snapshots
+# TYPE restic_snapshot_count gauge
+restic_snapshot_count{restic_hostname="DPC1",restic_tags="minebase"} 1
+restic_snapshot_count{restic_hostname="DPC1",restic_tags="papermc"} 3
+# HELP restic_snapshot_count_total Total number of snapshots in the repository
+# TYPE restic_snapshot_count_total gauge
+restic_snapshot_count_total 4
+# HELP restic_snapshot_exit_code Exit code of the list snapshots command. See restic exit codes, except 1684 for json output parsing errors: https://restic.readthedocs.io/en/stable/075_scripting.html#exit-codes
+# TYPE restic_snapshot_exit_code gauge
+restic_snapshot_exit_code 0
 `
 
 	err := testutil.CollectAndCompare(reg, strings.NewReader(expected))
