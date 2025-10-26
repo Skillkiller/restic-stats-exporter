@@ -40,6 +40,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- lastSnapshotDataAddedPackedDesc
 	ch <- lastSnapshotTotalFilesProcessedDesc
 	ch <- lastSnapshotTotalBytesProcessedDesc
+	ch <- snapshotExitCode
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {

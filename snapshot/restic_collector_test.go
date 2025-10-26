@@ -30,6 +30,7 @@ func TestCollector_Describe(t *testing.T) {
 		lastSnapshotDataAddedPackedDesc.String():     true,
 		lastSnapshotTotalFilesProcessedDesc.String(): true,
 		lastSnapshotTotalBytesProcessedDesc.String(): true,
+		snapshotExitCode.String():                    true,
 	}
 
 	expectedCount := len(expectedDesc)
