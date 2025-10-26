@@ -1,0 +1,156 @@
+[
+  {
+    "group_key": {
+      "hostname": "SK12",
+      "paths": null,
+      "tags": [
+        "full-server"
+      ]
+    },
+    "snapshots": [
+      {
+        "time": "2025-10-07T17:56:01.685056163+02:00",
+        "tree": "1",
+        "paths": [
+          "/"
+        ],
+        "hostname": "SK12",
+        "username": "root",
+        "excludes": [
+          "/dev"
+        ],
+        "tags": [
+          "full-server"
+        ],
+        "program_version": "restic 0.18.0",
+        "summary": {
+          "backup_start": "2025-10-07T17:56:01.685056163+02:00",
+          "backup_end": "2025-10-07T18:02:13.257197421+02:00",
+          "files_new": 72799,
+          "files_changed": 0,
+          "files_unmodified": 0,
+          "dirs_new": 10352,
+          "dirs_changed": 0,
+          "dirs_unmodified": 0,
+          "data_blobs": 10352,
+          "tree_blobs": 9919,
+          "data_added": 3155414417,
+          "data_added_packed": 1241206301,
+          "total_files_processed": 72799,
+          "total_bytes_processed": 3771315033
+        },
+        "id": "96abef0e00a18ab45ace9f04dabdd5e5e6585cf8a1aac753ec9af3c756e5ac42",
+        "short_id": "96abef0e"
+      },
+      {
+        "time": "2025-10-12T00:35:01.347812525+02:00",
+        "parent": "1",
+        "tree": "a",
+        "paths": [
+          "/"
+        ],
+        "hostname": "SK12",
+        "username": "root",
+        "excludes": [
+          "/dev"
+        ],
+        "tags": [
+          "full-server"
+        ],
+        "program_version": "restic 0.18.0",
+        "summary": {
+          "backup_start": "2025-10-12T00:35:01.347812525+02:00",
+          "backup_end": "2025-10-12T00:36:10.861283523+02:00",
+          "files_new": 1,
+          "files_changed": 69,
+          "files_unmodified": 73040,
+          "dirs_new": 0,
+          "dirs_changed": 80,
+          "dirs_unmodified": 10419,
+          "data_blobs": 230,
+          "tree_blobs": 73,
+          "data_added": 138116104,
+          "data_added_packed": 44128842,
+          "total_files_processed": 73110,
+          "total_bytes_processed": 3927390997
+        },
+        "id": "729e9fbbdce70718874e62d53397f31463105aedeffdc4babc3674776c631b80",
+        "short_id": "729e9fbb"
+      }
+    ]
+  },
+  {
+    "group_key": {
+      "hostname": "SK12",
+      "paths": null,
+      "tags": [
+        "kuma"
+      ]
+    },
+    "snapshots": [
+      {
+        "time": "2025-10-08T05:23:10.031203027+02:00",
+        "tree": "a",
+        "paths": [
+          "/root/kuma"
+        ],
+        "hostname": "SK12",
+        "username": "root",
+        "tags": [
+          "kuma"
+        ],
+        "program_version": "restic 0.18.0",
+        "summary": {
+          "backup_start": "2025-10-08T05:23:10.031203027+02:00",
+          "backup_end": "2025-10-08T05:23:26.623964395+02:00",
+          "files_new": 7,
+          "files_changed": 0,
+          "files_unmodified": 0,
+          "dirs_new": 12,
+          "dirs_changed": 0,
+          "dirs_unmodified": 0,
+          "data_blobs": 6,
+          "tree_blobs": 8,
+          "data_added": 8550737,
+          "data_added_packed": 1825021,
+          "total_files_processed": 7,
+          "total_bytes_processed": 16325329
+        },
+        "id": "c9719c8941be0587617fe31977d8b8809c1897c000225150e37126f741ef5b8c",
+        "short_id": "c9719c89"
+      },
+      {
+        "time": "2025-10-12T05:23:09.346002024+02:00",
+        "parent": "2",
+        "tree": "a",
+        "paths": [
+          "/root/kuma"
+        ],
+        "hostname": "SK12",
+        "username": "root",
+        "tags": [
+          "kuma"
+        ],
+        "program_version": "restic 0.18.0",
+        "summary": {
+          "backup_start": "2025-10-12T05:23:09.346002024+02:00",
+          "backup_end": "2025-10-12T05:23:24.842472768+02:00",
+          "files_new": 0,
+          "files_changed": 1,
+          "files_unmodified": 6,
+          "dirs_new": 0,
+          "dirs_changed": 9,
+          "dirs_unmodified": 3,
+          "data_blobs": 7,
+          "tree_blobs": 7,
+          "data_added": 9785903,
+          "data_added_packed": 2079457,
+          "total_files_processed": 7,
+          "total_bytes_processed": 18025169
+        },
+        "id": "4e66c0cc6b3911b64dbf7fba48d9283dcc2d9bb198cdc608c8c25cc6b0c08046",
+        "short_id": "4e66c0cc"
+      }
+    ]
+  }
+]
