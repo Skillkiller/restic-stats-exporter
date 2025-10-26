@@ -45,15 +45,17 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	out, err, exitCode := c.commandExecutor(c.resticExecutablePath, "snapshots", "--json", "--no-lock", "--group-by", "host,tags")
 
-	ch <- prometheus.MustNewConstMetric(snapshotExitCode, prometheus.GaugeValue, float64(exitCode))
 	if err != nil {
+		ch <- prometheus.MustNewConstMetric(snapshotExitCode, prometheus.GaugeValue, float64(exitCode))
 		return
 	}
 
 	groupData, err := readJson(out)
 	if err != nil {
-		panic(err)
+		ch <- prometheus.MustNewConstMetric(snapshotExitCode, prometheus.GaugeValue, float64(1684))
+		return
 	}
+	ch <- prometheus.MustNewConstMetric(snapshotExitCode, prometheus.GaugeValue, float64(exitCode))
 
 	totalSnapshotCount := getTotalSnapshotCount(groupData)
 	ch <- prometheus.MustNewConstMetric(snapshotCountTotalDesc, prometheus.GaugeValue, float64(totalSnapshotCount))
