@@ -7,7 +7,15 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type Collector struct{}
+type Collector struct {
+	resticExecutablePath string
+}
+
+func NewSnapshotCollector(resticExecutablePath string) *Collector {
+	return &Collector{
+		resticExecutablePath: resticExecutablePath,
+	}
+}
 
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- snapshotCountTotalDesc
@@ -30,7 +38,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
-	cmd := exec.Command("restic", "snapshots", "--json", "--no-lock")
+	cmd := exec.Command(c.resticExecutablePath, "snapshots", "--json", "--no-lock", "--group-by", "host,tags")
 
 	out, err := cmd.Output()
 	ch <- prometheus.MustNewConstMetric(snapshotExitCode, prometheus.GaugeValue, float64(cmd.ProcessState.ExitCode()))

@@ -14,7 +14,9 @@ func main() {
 	log.Println("Starting restic statistics exporter...")
 	checkEnv("RESTIC_REPOSITORY")
 
-	prometheus.MustRegister(&snapshot.Collector{})
+	resticExecutablePath := getEnvWithDefault("RSE_RESTIC_EXECUTABLE_PATH", "restic")
+
+	prometheus.MustRegister(snapshot.NewSnapshotCollector(resticExecutablePath))
 
 	addr := ":2112"
 	log.Printf("Starting metrics HTTP server on %s ...", addr)
@@ -35,4 +37,13 @@ func checkEnv(name string) {
 	if val == "" {
 		log.Fatalf("%s environment variable is empty", name)
 	}
+}
+
+func getEnvWithDefault(name string, defaultValue string) string {
+	val, ok := os.LookupEnv(name)
+	if !ok {
+		return defaultValue
+	}
+
+	return val
 }
