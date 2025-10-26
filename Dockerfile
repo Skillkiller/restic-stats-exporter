@@ -13,7 +13,7 @@ RUN CGO_ENABLED=0 go build -o rse .
 FROM alpine
 WORKDIR /app
 
-RUN apk add rclone
+RUN apk add rclone restic
 COPY --from=builder /app/rse /app/rse
 
 ENTRYPOINT ["/app/rse"]
