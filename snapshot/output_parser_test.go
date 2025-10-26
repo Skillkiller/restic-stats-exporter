@@ -312,3 +312,102 @@ func Test_getSnapshotCountByGroup(t *testing.T) {
 		})
 	}
 }
+
+func Test_getLastSnapshotByGroup(t *testing.T) {
+	type args struct {
+		group GroupData
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    GroupKey
+		want1   Snapshot
+		wantErr bool
+	}{
+		{
+			name: "empty data",
+			args: args{
+				group: GroupData{},
+			},
+			want:    GroupKey{},
+			want1:   Snapshot{},
+			wantErr: true,
+		},
+		{
+			name: "zero snapshots",
+			args: args{
+				group: GroupData{
+					GroupKey:  GroupKey{Hostname: "SK12", Tags: []string{"full-server"}},
+					Snapshots: []Snapshot{},
+				},
+			},
+			want:    GroupKey{},
+			want1:   Snapshot{},
+			wantErr: true,
+		},
+		{
+			name: "one snapshot",
+			args: args{
+				group: GroupData{
+					GroupKey: GroupKey{Hostname: "SK12", Tags: []string{"kuma"}},
+					Snapshots: []Snapshot{
+						{
+							Time:     mustParse(t, "2025-10-08T05:23:10.031203027+02:00"),
+							Hostname: "SK12",
+							Tags:     []string{"kuma"},
+						},
+					},
+				},
+			},
+			want: GroupKey{Hostname: "SK12", Tags: []string{"kuma"}},
+			want1: Snapshot{
+				Time:     mustParse(t, "2025-10-08T05:23:10.031203027+02:00"),
+				Hostname: "SK12",
+				Tags:     []string{"kuma"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "two snapshots",
+			args: args{
+				group: GroupData{
+					GroupKey: GroupKey{Hostname: "SK12", Tags: []string{"kuma"}},
+					Snapshots: []Snapshot{
+						{
+							Time:     mustParse(t, "2025-10-08T05:23:10.031203027+02:00"),
+							Hostname: "SK12",
+							Tags:     []string{"kuma"},
+						},
+						{
+							Time:     mustParse(t, "2025-10-12T05:23:09.346002024+02:00"),
+							Hostname: "SK12",
+							Tags:     []string{"kuma"},
+						},
+					},
+				},
+			},
+			want: GroupKey{Hostname: "SK12", Tags: []string{"kuma"}},
+			want1: Snapshot{
+				Time:     mustParse(t, "2025-10-12T05:23:09.346002024+02:00"),
+				Hostname: "SK12",
+				Tags:     []string{"kuma"},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1, err := getLastSnapshotByGroup(tt.args.group)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getLastSnapshotByGroup() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getLastSnapshotByGroup() got = %v, want %v", got, tt.want)
+			}
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("getLastSnapshotByGroup() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}

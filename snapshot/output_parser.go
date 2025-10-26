@@ -2,6 +2,7 @@ package snapshot
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -60,4 +61,20 @@ func getTotalSnapshotCount(data []GroupData) int {
 
 func getSnapshotCountByGroup(group GroupData) (GroupKey, int) {
 	return group.GroupKey, len(group.Snapshots)
+}
+
+func getLastSnapshotByGroup(group GroupData) (GroupKey, Snapshot, error) {
+	if len(group.Snapshots) == 0 {
+		return GroupKey{}, Snapshot{}, fmt.Errorf("no snapshots found")
+	}
+
+	lastSnapshot := group.Snapshots[len(group.Snapshots)-1]
+
+	for _, snapshot := range group.Snapshots {
+		if snapshot.Time.After(lastSnapshot.Time) {
+			lastSnapshot = snapshot
+		}
+	}
+
+	return group.GroupKey, lastSnapshot, nil
 }
