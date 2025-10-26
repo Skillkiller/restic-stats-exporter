@@ -38,10 +38,13 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
-	cmd := exec.Command(c.resticExecutablePath, "snapshots", "--json", "--no-lock", "--group-by", "host,tags")
+	c.collectWithExecutor(ch, execCommandExecutor)
+}
 
-	out, err := cmd.Output()
-	ch <- prometheus.MustNewConstMetric(snapshotExitCode, prometheus.GaugeValue, float64(cmd.ProcessState.ExitCode()))
+func (c *Collector) collectWithExecutor(ch chan<- prometheus.Metric, commandExecutor CommandExecutor) {
+	out, err, exitCode := commandExecutor(c.resticExecutablePath, "snapshots", "--json", "--no-lock", "--group-by", "host,tags")
+
+	ch <- prometheus.MustNewConstMetric(snapshotExitCode, prometheus.GaugeValue, float64(exitCode))
 	if err != nil {
 		return
 	}
@@ -89,4 +92,15 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(lastSnapshotTotalBytesProcessedDesc, prometheus.GaugeValue, float64(metrics.TotalBytesProcessed), hostname, tags)
 		}
 	}
+}
+
+// CommandExecutor is a function that executes a command and returns the output, error and exit code.
+type CommandExecutor func(name string, arg ...string) ([]byte, error, int)
+
+// execCommandExecutor executes a command with exec.Command and returns the output, error and exit code.
+var execCommandExecutor CommandExecutor = func(name string, arg ...string) ([]byte, error, int) {
+	cmd := exec.Command(name, arg...)
+	output, err := cmd.Output()
+	exitCode := cmd.ProcessState.ExitCode()
+	return output, err, exitCode
 }
