@@ -1,1 +1,11 @@
 .idea/
+
+# Go build output
+/bin/
+/obj/
+/*.exe
+/*.out
+
+# include
+!go.mod
+!go.sum
