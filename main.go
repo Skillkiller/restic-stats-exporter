@@ -2,7 +2,12 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
+	"restic-stats-exporter/snapshot"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -19,6 +24,8 @@ func checkEnv(name string) {
 	if val == "" {
 		log.Fatalf("%s environment variable is empty", name)
 	}
+
+	prometheus.MustRegister(&snapshot.Collector{})
 
 	addr := ":2112"
 	log.Printf("Starting metrics HTTP server on %s ...", addr)
