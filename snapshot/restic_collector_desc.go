@@ -103,4 +103,7 @@ var (
 		"Total number of bytes processed in the last snapshot",
 		[]string{"restic_hostname", "restic_tags"}, nil,
 	)
+	snapshotExitCode = prometheus.NewDesc("restic_snapshot_exit_code",
+		"Exit code of the list snapshots command",
+		nil, nil)
 )

@@ -17,6 +17,7 @@
 - restic_last_snapshot_data_added_packed
 - restic_last_snapshot_total_files_processed
 - restic_last_snapshot_total_bytes_processed
+- restic_snapshot_exit_code
 
 # Labels
 

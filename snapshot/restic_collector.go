@@ -33,8 +33,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	cmd := exec.Command("restic", "snapshots", "--json", "--no-lock")
 
 	out, err := cmd.Output()
+	ch <- prometheus.MustNewConstMetric(snapshotExitCode, prometheus.GaugeValue, float64(cmd.ProcessState.ExitCode()))
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	groupData, err := readJson(out)
