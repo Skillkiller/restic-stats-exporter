@@ -35,5 +35,12 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		panic(err)
 	}
-	print(string(out))
+
+	groupData, err := readJson(out)
+	if err != nil {
+		panic(err)
+	}
+
+	totalSnapshotCount := getTotalSnapshotCount(groupData)
+	ch <- prometheus.MustNewConstMetric(snapshotCountTotal, prometheus.GaugeValue, float64(totalSnapshotCount))
 }
