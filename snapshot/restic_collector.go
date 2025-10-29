@@ -2,6 +2,7 @@ package snapshot
 
 import (
 	"os/exec"
+	"restic-stats-exporter/util"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -9,11 +10,8 @@ import (
 
 type Collector struct {
 	resticExecutablePath string
-	commandExecutor      CommandExecutor
+	commandExecutor      util.CommandExecutor
 }
-
-// CommandExecutor is a function that executes a command and returns the output, error and exit code.
-type CommandExecutor func(name string, arg ...string) ([]byte, error, int)
 
 func NewSnapshotCollector(resticExecutablePath string) *Collector {
 	return &Collector{
@@ -99,7 +97,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 }
 
 // execCommandExecutor executes a command with exec.Command and returns the output, error and exit code.
-var execCommandExecutor CommandExecutor = func(name string, arg ...string) ([]byte, error, int) {
+var execCommandExecutor util.CommandExecutor = func(name string, arg ...string) ([]byte, error, int) {
 	cmd := exec.Command(name, arg...)
 	output, err := cmd.Output()
 	exitCode := cmd.ProcessState.ExitCode()
