@@ -1,7 +1,6 @@
 package snapshot
 
 import (
-	"os/exec"
 	"restic-stats-exporter/util"
 	"strings"
 
@@ -16,7 +15,7 @@ type Collector struct {
 func NewSnapshotCollector(resticExecutablePath string) *Collector {
 	return &Collector{
 		resticExecutablePath: resticExecutablePath,
-		commandExecutor:      execCommandExecutor,
+		commandExecutor:      util.ExecCommandExecutor,
 	}
 }
 
@@ -94,12 +93,4 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(lastSnapshotTotalBytesProcessedDesc, prometheus.GaugeValue, float64(metrics.TotalBytesProcessed), hostname, tags)
 		}
 	}
-}
-
-// execCommandExecutor executes a command with exec.Command and returns the output, error and exit code.
-var execCommandExecutor util.CommandExecutor = func(name string, arg ...string) ([]byte, error, int) {
-	cmd := exec.Command(name, arg...)
-	output, err := cmd.Output()
-	exitCode := cmd.ProcessState.ExitCode()
-	return output, err, exitCode
 }
